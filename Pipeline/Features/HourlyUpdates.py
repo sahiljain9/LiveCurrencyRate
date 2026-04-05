@@ -11,22 +11,16 @@ from Database import save
 from SaveFeatures import save_features
 
 def run_pipeline():
-    """
-    Runs complete pipeline every hour.
-    Uses raw 166 currencies for all features.
-    """
-    print(f"\n Pipeline running at {datetime.now()}")
+    print(f"Pipeline running at {datetime.now()}")
     raw = extract(fetch_rates())
-    save("raw_rates", raw)    
-    save_features(raw)            
-    print(f" Done!")
+    save("raw_rates", raw)
+    save_features(raw)
+    print(f"Done!")
 
-# Run once immediately
 run_pipeline()
 
-# Every hour
 schedule.every(1).hours.do(run_pipeline)
-print("⏰ Running every hour!")
+print("Running every hour!")
 
 while True:
     schedule.run_pending()
