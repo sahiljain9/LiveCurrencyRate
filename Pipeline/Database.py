@@ -1,10 +1,6 @@
-import pymysql
-
-def get_conn():
-    return pymysql.connect(
-        host="127.0.0.1", port=3306,
-        user="root", password="",
-        database="forex_pipeline")
+import sys, os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from Config import get_conn
 
 def save(table, records):
     conn   = get_conn()
@@ -14,10 +10,10 @@ def save(table, records):
         f"SELECT DATE(extracted_at) FROM {table} ORDER BY id DESC LIMIT 1")
     last = cursor.fetchone()
     
-    new_date = records[0]["extracted_at"][:10]  # YYYY-MM-DD
+    new_date = records[0]["extracted_at"][:10]
 
     if last and str(last[0]) == new_date:
-        print(f" Already saved today — skipped {table}")
+        print(f"Already saved today — skipped {table}")
         conn.close()
         return
 
@@ -27,13 +23,10 @@ def save(table, records):
             (r["currency_code"], r["rate"], r["extracted_at"]))
     conn.commit()
     conn.close()
-    print(f" Saved {len(records)} records to {table}")
+    print(f"Saved {len(records)} records to {table}")
 
 if __name__ == "__main__":
     from DataFetch import fetch_rates
     from Extract import extract
-    from Clean import clean
     raw = extract(fetch_rates())
-    cln = clean(raw)
     save("raw_rates", raw)
-    save("cleaned_rates", cln)
