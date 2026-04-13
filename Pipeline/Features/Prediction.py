@@ -1,13 +1,9 @@
-import pymysql
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-
-def get_conn():
-    return pymysql.connect(host="127.0.0.1", port=3306,
-        user="root", password="", database="forex_pipeline")
+from Config import get_conn
 def predict(currency, conn):
     cursor = conn.cursor()
-    cursor.execute("SELECT rate FROM cleaned_rates WHERE currency_code=%s ORDER BY id DESC LIMIT 5", (currency,))
+    cursor.execute("SELECT rate FROM raw_rates WHERE currency_code=%s ORDER BY id DESC LIMIT 5", (currency,))
     rates = [float(r[0]) for r in cursor.fetchall()]
     if len(rates) < 2: return None, "insufficient_data", 0.0
     n     = len(rates)
@@ -19,10 +15,9 @@ def predict(currency, conn):
 if __name__ == "__main__":
     from DataFetch import fetch_rates
     from Extract import extract
-    from Clean import clean
     conn    = get_conn()
-    cleaned = clean(extract(fetch_rates()))
-    for r in cleaned:
+    raw = extract(fetch_rates())
+    for r in raw:
         pred, direction, conf = predict(r["currency_code"], conn)
         if pred: 
             print(f"{r['currency_code']} → {pred} ({direction})")
