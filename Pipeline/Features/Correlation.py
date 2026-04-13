@@ -1,15 +1,11 @@
-import pymysql
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-
-def get_conn():
-    return pymysql.connect(host="127.0.0.1", port=3306,
-        user="root", password="", database="forex_pipeline")
+from Config import get_conn
 def correlation(c1, c2, conn):
     cursor = conn.cursor()
-    cursor.execute("SELECT rate FROM cleaned_rates WHERE currency_code=%s ORDER BY id DESC LIMIT 5", (c1,))
+    cursor.execute("SELECT rate FROM raw_rates WHERE currency_code=%s ORDER BY id DESC LIMIT 5", (c1,))
     r1 = [float(r[0]) for r in cursor.fetchall()]
-    cursor.execute("SELECT rate FROM cleaned_rates WHERE currency_code=%s ORDER BY id DESC LIMIT 5", (c2,))
+    cursor.execute("SELECT rate FROM raw_rates WHERE currency_code=%s ORDER BY id DESC LIMIT 5", (c2,))
     r2 = [float(r[0]) for r in cursor.fetchall()]
     if len(r1) < 2 or len(r2) < 2: return "insufficient_data"
     m1 = [r1[i]-r1[i+1] for i in range(len(r1)-1)]
@@ -19,11 +15,9 @@ def correlation(c1, c2, conn):
 if __name__ == "__main__":
     from DataFetch import fetch_rates
     from Extract import extract
-    from Clean import clean
-    conn    = get_conn()
-    cleaned = clean(extract(fetch_rates()))
-    codes = [r["currency_code"] for r in cleaned 
-         if r["currency_code"] != "USD"]
+    conn = get_conn()
+    raw = extract(fetch_rates())
+    codes = [r["currency_code"] for r in raw]
     high_correlations = []
     for i in range(len(codes)):
         for j in range(i+1, len(codes)):
