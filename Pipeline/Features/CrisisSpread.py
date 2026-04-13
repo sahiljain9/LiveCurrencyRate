@@ -1,10 +1,6 @@
-import pymysql
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-
-def get_conn():
-    return pymysql.connect(host="127.0.0.1", port=3306,
-        user="root", password="", database="forex_pipeline")
+from Config import get_conn
 REGIONS = {
     "Middle_East": ["AED","SAR","QAR","KWD","IRR"],
     "Europe"     : ["EUR","GBP","CHF","NOK","SEK"],
@@ -17,7 +13,7 @@ def crisis_spread(conn):
     for region, currencies in REGIONS.items():
         volatile = []
         for c in currencies:
-            cursor.execute("SELECT rate FROM cleaned_rates WHERE currency_code=%s ORDER BY id DESC LIMIT 5", (c,))
+            cursor.execute("SELECT rate FROM raw_rates WHERE currency_code=%s ORDER BY id DESC LIMIT 5", (c,))
             rates = [float(r[0]) for r in cursor.fetchall()]
             if len(rates) < 2: continue
             avg = sum(rates)/len(rates)
