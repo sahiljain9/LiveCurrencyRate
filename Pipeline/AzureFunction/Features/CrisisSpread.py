@@ -1,7 +1,3 @@
-import pymysql
-import sys, os
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from Config import get_conn
@@ -17,7 +13,7 @@ def crisis_spread(conn):
     for region, currencies in REGIONS.items():
         volatile = []
         for c in currencies:
-            cursor.execute("SELECT rate FROM cleaned_rates WHERE currency_code=%s ORDER BY id DESC LIMIT 5", (c,))
+            cursor.execute("SELECT rate FROM raw_rates WHERE currency_code=%s ORDER BY id DESC LIMIT 5", (c,))
             rates = [float(r[0]) for r in cursor.fetchall()]
             if len(rates) < 2: continue
             avg = sum(rates)/len(rates)

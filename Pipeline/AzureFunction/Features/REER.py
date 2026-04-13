@@ -1,7 +1,3 @@
-import pymysql
-import sys, os
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from Config import get_conn
@@ -13,7 +9,7 @@ import math
 
 def reer(base, conn):
     cursor = conn.cursor()
-    cursor.execute("SELECT rate FROM cleaned_rates WHERE currency_code=%s ORDER BY id DESC LIMIT 1", (base,))
+    cursor.execute("SELECT rate FROM raw_rates WHERE currency_code=%s ORDER BY id DESC LIMIT 1", (base,))
     base_result = cursor.fetchone()
     if not base_result: return 0.0, "no_data"
     base_rate = float(base_result[0])
@@ -21,7 +17,7 @@ def reer(base, conn):
     total, weight_sum = 0, 0
     for currency, w in WEIGHTS.items():
         if currency == base: continue
-        cursor.execute("SELECT rate FROM cleaned_rates WHERE currency_code=%s ORDER BY id DESC LIMIT 1", (currency,))
+        cursor.execute("SELECT rate FROM raw_rates WHERE currency_code=%s ORDER BY id DESC LIMIT 1", (currency,))
         r = cursor.fetchone()
         if not r: continue
         ratio = math.log(float(r[0]) + 1) / math.log(base_rate + 1)
@@ -34,10 +30,9 @@ def reer(base, conn):
 if __name__ == "__main__":
     from DataFetch import fetch_rates
     from Extract import extract
-    from Clean import clean
     conn    = get_conn()
-    cleaned = clean(extract(fetch_rates()))
-    for r in cleaned:
+    raw = extract(fetch_rates())
+    for r in raw:
         score, label = reer(r["currency_code"], conn)
         print(f"{r['currency_code']} → {score} ({label})")
     conn.close()

@@ -1,7 +1,3 @@
-import pymysql
-import sys, os
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from Config import get_conn
@@ -16,9 +12,8 @@ def get_volatility(currency, conn):
         ORDER BY DATE(extracted_at) DESC
     """, (currency,))
     rates = [float(r[0]) for r in cursor.fetchall()]
-    if len(rates) < 2: 
-        return 0.0, "insufficient_data"
-    avg   = sum(rates) / len(rates)
+    if len(rates) < 2: return 0.0, "insufficient_data"
+    avg   = sum(rates)/len(rates)
     vol   = round((sum((r-avg)**2 for r in rates)/len(rates))**0.5, 6)
     label = "stable" if vol<0.001 else "low" if vol<0.01 else "medium" if vol<0.05 else "high"
     return vol, label
