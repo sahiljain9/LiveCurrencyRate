@@ -2,9 +2,9 @@ import pymysql
 import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-def get_conn():
-    return pymysql.connect(host="127.0.0.1", port=3306,
-        user="root", password="", database="forex_pipeline")
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from Config import get_conn
 
 def get_volatility(currency, conn):
     cursor = conn.cursor()
