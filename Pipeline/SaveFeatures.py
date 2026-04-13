@@ -3,6 +3,7 @@ import sys, os
 from datetime import datetime, timezone
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from Config import get_conn
 
 from DataFetch import fetch_rates
 from Extract import extract
@@ -14,10 +15,6 @@ from Features.Prediction import predict
 from Features.REER import reer
 from Features.Correlation import correlation
 from Features.CrisisSpread import crisis_spread
-
-def get_conn():
-    return pymysql.connect(host="127.0.0.1", port=3306,
-        user="root", password="", database="forex_pipeline")
 
 def save_features(records):
     """
