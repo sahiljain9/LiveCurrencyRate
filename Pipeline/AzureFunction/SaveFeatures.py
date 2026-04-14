@@ -1,8 +1,7 @@
-import pymysql
 import sys, os
 from datetime import datetime, timezone
-
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from Config import get_conn
 
 from DataFetch import fetch_rates
 from Extract import extract
