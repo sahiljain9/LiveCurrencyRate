@@ -18,49 +18,15 @@ https://dashboard-bpccd3h9fpgmf4bv.switzerlandnorth-01.azurewebsites.net
 - **Cloud**: Azure Function App (hourly timer trigger)
 - **Version Control**: GitHub
 
-## Project Structure
-LiveCurrencyRate/
-└── Pipeline/
-├── DataFetch.py           # Fetch 166 currencies from API
-├── Extract.py             # Extract currency records 
-├── Database.py            # Save to MySQL
-├── Config.py              # Azure MySQL connection
-├── SaveFeatures.py        # Calculate and save all features
-├── app.py                 # Flask dashboard
-├── Features/
-│   ├── Volatility.py      # Standard deviation of daily rates
-│   ├── AnomalyDetection.py# Flag >1% rate change
-│   ├── MarketOpen.py      # Market session detection
-│   ├── PriceChange.py     # % change vs previous day
-│   ├── Prediction.py      # Linear Regression next rate
-│   ├── REER.py            # Real Effective Exchange Rate
-│   ├── Correlation.py     # Directional agreement between pairs
-│   └── CrisisSpread.py    # Regional contagion risk
-├── Tests/
-│   ├── test_volatility.py
-│   ├── test_anomaly.py
-│   ├── test_market_session.py
-│   ├── test_price_change.py
-│   ├── test_prediction.py
-│   ├── test_reer.py
-│   ├── test_correlation.py
-│   ├── test_crisis_spread.py
-│   └── test_integration.py
-└── AzureFunction/
-└── function_app.py    # Timer trigger hourly pipeline
-
 ## Architecture
-open.er-api.com
-↓
-Azure Function (hourly trigger)
-↓
-DataFetch → Extract → SaveFeatures
-↓
-Azure MySQL Database
-↓
-Flask Dashboard (Azure Web App)
-↓
-Public URL accessible anywhere
+
+1. open.er-api.com - fetches live exchange rates for 166 currencies
+2. Azure Function App - triggers pipeline every hour automatically
+3. DataFetch and Extract -fetches and structures the raw data
+4. SaveFeatures - calculates all 9 features for each currency
+5. Azure MySQL - stores all data and features in cloud database
+6. Flask Dashboard - queries database and displays results
+7. Public URL - accessible from anywhere via Azure Web App
 
 ## Feature Engineering Logic
 
@@ -230,9 +196,5 @@ python Pipeline/Tests/test_integration.py
 ```
 
 ## Test Results
-- Unit Tests: 20 tests — all passed 
-- Integration Tests: 5 tests — all passed 
-
-
-
-
+- Unit Tests: 20 tests -all passed 
+- Integration Tests: 5 tests -all passed 
