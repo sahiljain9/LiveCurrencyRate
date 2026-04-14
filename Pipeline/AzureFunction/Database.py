@@ -6,15 +6,19 @@ def save(table, records):
     """Saves records only if rate has changed since last save."""
     conn   = get_conn()
     cursor = conn.cursor()
-    saved  = 0
+    cursor.execute(f"""
+        SELECT currency_code, rate FROM {table} 
+        WHERE id IN (
+            SELECT MAX(id) FROM {table} 
+            GROUP BY currency_code
+        )
+    """)
+    last_rates = {row[0]: float(row[1]) for row in cursor.fetchall()}
     
+    saved = 0
     for r in records:
-        cursor.execute(
-            f"SELECT rate FROM {table} WHERE currency_code=%s ORDER BY id DESC LIMIT 1",
-            (r["currency_code"],))
-        last = cursor.fetchone()
-        
-        if not last or float(last[0]) != float(r["rate"]):
+        last = last_rates.get(r["currency_code"])
+        if not last or last != float(r["rate"]):
             cursor.execute(
                 f"INSERT INTO {table} (currency_code, rate, extracted_at) VALUES (%s,%s,%s)",
                 (r["currency_code"], r["rate"], r["extracted_at"]))
